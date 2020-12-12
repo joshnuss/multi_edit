@@ -1,27 +1,56 @@
 <!-- @hmr:keep-all -->
 <script>
+  import { writable } from 'svelte/store'
   import MultiInput from './MultiInput.svelte'
 
-  export let title = "Dank Hoodie"
-  export let description = "It's extremely dank"
-  export let price = "$75"
+  let id = "josh"
+  const store = writable({
+    userId: "josh",
+    fields: {
+      title: "Dank Hoodie",
+      description: "It's extremely dank",
+      price: "$75"
+    },
+    cursors: {
+      josh: { title: 0 },
+      josh2: { title: 4 },
+      josh3: { description: 5 }
+    },
+    users: {
+      josh: {},
+      josh2: {name: "Josh #2", textColor: "black", primaryColor: "plum"},
+      josh3: {name: "Josh #3", textColor: "white", primaryColor: "red"}
+    },
+    selections: {
+      josh: {}
+    }
+  })
+
+  export let title = $store.fields.title
+  export let description = $store.fields.description
+  export let price = $store.fields.price
+
+  $: { $store.fields.title = title }
+  $: { $store.fields.description = description }
+  $: { $store.fields.price = price }
 </script>
 
+<pre>{JSON.stringify($store, null, 2)}</pre>
 <div>
   <h1>Edit product</h1>
   <label>
     <span>Title</span>
-    <MultiInput bind:text={title} multiline={false}/>
+    <MultiInput name="title" bind:text={title} multiline={false} {id} {store}/>
   </label>
 
   <label>
     <span>Description</span>
-    <MultiInput bind:text={description} multiline={true} lines=3/>
+    <MultiInput name="description" bind:text={description} multiline={true} lines=3 {id} {store}/>
   </label>
 
   <label>
     <span>Price</span>
-    <MultiInput bind:text={price} multiline={false}/>
+    <MultiInput name="price" bind:text={price} multiline={false} {id} {store}/>
   </label>
 </div>
 

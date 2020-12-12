@@ -1,44 +1,55 @@
 <script>
   export let text = ""
-  export let position = text.length
   export let multiline = true
-  export let name = "me"
+  export let store
+  export let name
+  export let id = "josh"
+  export let userName = "me"
   export let lines = 1
   export let selection = null
-  export let selections = [
-    {start: 2, end: 2, name: "Josh #2", color: 'pink'},
-    {start: 4, end: 5, name: "Josh #3", color: 'orange'}
-  ]
 
   let showCursor = false
+
+  $: position = $store.cursors[id][name]
+
+  function handleFocus() {
+    showCursor = true
+
+    if (typeof(position) == "undefined")
+      setPosition(text.length)
+  }
 
   function handleKeydown(e) {
     switch (e.key) {
       case "Backspace":
         if (selection) {
           text = text.slice(0, selection.start) + text.substring(selection.end)
-          position = selection.start
+          setPosition(selection.start)
           selection = null
         } else if (position > 0) {
           text = text.slice(0, position-1) + text.substring(position)
-          position = position-1 > text.length ? text.length : position-1
+          setPosition(position-1 > text.length ? text.length : position-1)
         }
 
+        e.preventDefault()
         break;
       case "Enter":
         if (multiline) {
           text += "\n"
-          position = text.length
+          setPosition(text.length)
+          e.preventDefault()
         }
+
         break;
       case 'Delete':
         if (selection) {
           text = text.slice(0, selection.start) + text.substring(selection.end)
-          position = selection.start
+          setPosition(selection.start)
           selection = null
         }  if (position < text.length) {
           text = text.slice(0, position) + text.substring(position+1)
         }
+        e.preventDefault()
         break
       case 'ArrowLeft':
         if (e.shiftKey) {
@@ -48,8 +59,10 @@
         }
 
         if (position > 0) {
-          position--
+          setPosition(position-1)
         }
+
+        e.preventDefault()
         break;
       case 'ArrowRight':
         if (e.shiftKey) {
@@ -59,16 +72,20 @@
         }
 
         if (position < text.length) {
-          position++
+          setPosition(position+1)
         }
+
+        e.preventDefault()
         break;
       case 'Home':
-        position = 0
+        setPosition(0)
         selection = null
+        e.preventDefault()
         break;
       case 'End':
-        position = text.length
+        setPosition(text.length)
         selection = null
+        e.preventDefault()
         break;
       case "ContextMenu":
       case "Shift":
@@ -81,13 +98,14 @@
       default:
         if (selection) {
           text = text.slice(0, selection.start) + text.substring(selection.end)
-          position = selection.start
+          setPosition(selection.start)
           selection = null
         }
 
         text = text.slice(0, position) + e.key + text.substring(position)
-        position++
+        setPosition(position + 1)
 
+        e.preventDefault()
         break;
     }
   }
@@ -106,20 +124,24 @@
     }
   }
 
+  function setPosition(pos) {
+    $store.cursors[id][name] = pos
+  }
+
   function inSelection(selection, index) {
     return selection && index >= selection.start && index <= selection.end
   }
 
   function handleCharClicked(e, index) {
     e.preventDefault()
-    position = index
+    setPosition(index)
     selection = null
   }
 </script>
 
-<div class="editor" tabindex=0 on:keydown={handleKeydown} on:focus={() => showCursor = true} on:focusout={() => showCursor = false} style="--lines: {lines}">
-  {#key [selections, selection]}
-    {#each text.split("") as char, index}{#if showCursor && index == position}<span class="cursor local" style="--color: turquoise"><span class="name">{name}</span></span>{/if}{#each selections as selection}{#if selection && selection.end == index}<span class="cursor" style="--color: {selection.color}; --index: {index}px"><span class="name">{selection.name}</span></span>{/if}{/each}{#if char == "\n"}<br/>{:else}<span class="char" on:click={e => handleCharClicked(e, index)} class:selected={inSelection(selection, index)}>{char}</span>{/if}{/each}{#if showCursor && text.length == position}<span class="cursor local" style="--color: turquoise"><span class="name">{name}</span></span>{/if}
+<div class="editor" tabindex=0 on:keydown={handleKeydown} on:focus={handleFocus} on:focusout={() => showCursor = false} style="--lines: {lines}">
+  {#key [...Object.values($store.cursors), ...Object.values($store.selections)]}
+  {#each text.split("") as char, index}{#if showCursor && index == position}<span class="cursor local" style="--background-color: turquoise; text-color: black"><span class="name">{userName}</span></span>{/if}{#each Object.entries($store.cursors) as [userId, cursor]}{#if cursor[name] == index && userId !== $store.userId}<span class="cursor" style="--background-color: {$store.users[userId].primaryColor}; --text-color: {$store.users[userId].textColor}; --index: {index}px"><span class="name">{$store.users[userId].name}</span></span>{/if}{/each}{#if char == "\n"}<br/>{:else}<span class="char" on:click={e => handleCharClicked(e, index)} class:selected={inSelection(selection, index)}>{char}</span>{/if}{/each}{#if showCursor && text.length == position}<span class="cursor local" style="--background-color: turquoise; --text-color: black;"><span class="name">{userName}</span></span>{/if}
   {/key}
 </div>
 
@@ -137,8 +159,9 @@
 
   .cursor {
     display: inline-block;
+    position: absolute;
     width: 1px;
-    background: var(--color);
+    background: var(--background-color);
     height: 1rem;
     margin: 2px 0 0 0;
   }
@@ -147,11 +170,13 @@
     display: block;
     position: absolute;
     margin-top: -15px;
-    background: var(--color);
+    background: var(--background-color);
+    color: var(--text-color);
     font-size: 10px;
     padding: 2px 4px;
     border-radius: 2px 2px 2px 0;
     box-shadow: 1px 1px #ccc3;
+    white-space: nowrap;
   }
 
   .cursor.local .name {
