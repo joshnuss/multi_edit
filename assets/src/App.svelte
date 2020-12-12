@@ -40,9 +40,11 @@
     flex-direction: column;
     width: 100%;
   }
+
   label {
     margin-top: 20px;
   }
+
   label span {
     display: block;
     font-size: 0.8rem;

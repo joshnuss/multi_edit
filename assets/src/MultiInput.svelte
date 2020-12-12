@@ -2,16 +2,15 @@
   export let text = ""
   export let position = text.length
   export let multiline = true
-  export let name = "Josh #1"
+  export let name = "me"
   export let lines = 1
-
-  let showCursor = false
-  let selection = null
-
-  let selections = [
+  export let selection = null
+  export let selections = [
     {start: 2, end: 2, name: "Josh #2", color: 'pink'},
     {start: 4, end: 5, name: "Josh #3", color: 'orange'}
   ]
+
+  let showCursor = false
 
   function handleKeydown(e) {
     switch (e.key) {
@@ -120,7 +119,7 @@
 
 <div class="editor" tabindex=0 on:keydown={handleKeydown} on:focus={() => showCursor = true} on:focusout={() => showCursor = false} style="--lines: {lines}">
   {#key [selections, selection]}
-    {#each text.split("") as char, index}{#if showCursor && index == position}<span class="cursor" style="--color: turquoise"><span class="name">{name}</span></span>{/if}{#each selections as selection}{#if selection && selection.end == index}<span class="cursor" style="--color: {selection.color}; --index: {index}px"><span class="name">{selection.name}</span></span>{/if}{/each}{#if char == "\n"}<br/>{:else}<span class="char" on:click={e => handleCharClicked(e, index)} class:selected={inSelection(selection, index)}>{char}</span>{/if}{/each}{#if showCursor && text.length == position}<span class="cursor" style="--color: turquoise"><span class="name">{name}</span></span>{/if}
+    {#each text.split("") as char, index}{#if showCursor && index == position}<span class="cursor local" style="--color: turquoise"><span class="name">{name}</span></span>{/if}{#each selections as selection}{#if selection && selection.end == index}<span class="cursor" style="--color: {selection.color}; --index: {index}px"><span class="name">{selection.name}</span></span>{/if}{/each}{#if char == "\n"}<br/>{:else}<span class="char" on:click={e => handleCharClicked(e, index)} class:selected={inSelection(selection, index)}>{char}</span>{/if}{/each}{#if showCursor && text.length == position}<span class="cursor local" style="--color: turquoise"><span class="name">{name}</span></span>{/if}
   {/key}
 </div>
 
@@ -154,6 +153,11 @@
     border-radius: 2px 2px 2px 0;
     box-shadow: 1px 1px #ccc3;
   }
+
+  .cursor.local .name {
+    z-index: 5;
+  }
+
   .selected {
      background: #acf3ec;
   }
