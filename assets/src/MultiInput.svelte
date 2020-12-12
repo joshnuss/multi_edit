@@ -96,6 +96,8 @@
       case "Tab":
         break
       default:
+        if (e.ctrlKey) return
+
         if (selection) {
           text = text.slice(0, selection.start) + text.substring(selection.end)
           setPosition(selection.start)
@@ -113,22 +115,28 @@
   function select(n) {
     if (n < 0) {
       if (!selection)
-        setSelection({start: position-1, end: position})
-      else
-        setSelection({...selection, start: selection.start + n})
+        setSelection({start: position-1, end: position-1})
+      else if (position == selection.start) {
+        setSelection({...selection, start: position + n})
+      } else if (position == selection.end) {
+        setSelection({...selection, end: position + n})
+      }
     } else if (n > 0) {
       if (!selection)
         setSelection({start: position, end: position})
-      else
-        setSelection({...selection, end: selection.end + n})
+      else if (position == selection.end+1) {
+        setSelection({...selection, end: position + n})
+      } else if (position == selection.start) {
+        setSelection({...selection, start: position + n})
       }
+    }
   }
 
-  function setSelection(selection) {
-    if (selection == null)
+  function setSelection(change) {
+    if (change == null)
       $store.selections[id] = null
     else
-      $store.selections[id] = {field: name, ...selection}
+      $store.selections[id] = {field: name, ...change}
   }
 
   function setPosition(pos) {
@@ -148,7 +156,7 @@
 
 <div class="editor" tabindex=0 on:keydown={handleKeydown} on:focus={handleFocus} on:focusout={() => showCursor = false} style="--lines: {lines}">
   {#key [...Object.values($store.cursors), ...Object.values($store.selections)]}
-  {#each text.split("") as char, index}{#if showCursor && index == position}<span class="cursor local" style="--background-color: turquoise; text-color: black"><span class="name">{userName}</span></span>{/if}{#each Object.entries($store.cursors) as [userId, cursor]}{#if cursor[name] == index && userId !== $store.userId}<span class="cursor" style="--background-color: {$store.users[userId].primaryColor}; --text-color: {$store.users[userId].textColor}; --index: {index}px"><span class="name">{$store.users[userId].name}</span></span>{/if}{/each}{#if char == "\n"}<br/>{:else}<span class="char" on:click={e => handleCharClicked(e, index)} class:selected={inSelection(selection, index)}>{#if char == " "}&nbsp;{:else}{char}{/if}</span>{/if}{/each}{#if showCursor && text.length == position}<span class="cursor local" style="--background-color: turquoise; --text-color: black;"><span class="name">{userName}</span></span>{/if}
+  {#each text.split("") as char, index}{#if showCursor && index == position}<span class="cursor local" style="--background-color: turquoise; text-color: black"><span class="name">{userName}</span></span>{/if}{#each Object.entries($store.cursors) as [userId, cursor]}{#if cursor[name] == index && userId !== $store.userId}<span class="cursor" style="--background-color: {$store.users[userId].primaryColor}; --text-color: {$store.users[userId].textColor}; --index: {index}px"><span class="name">{$store.users[userId].name}</span></span>{/if}{/each}{#if char == "\n"}<br/>{:else}<span class="char" on:click={e => handleCharClicked(e, index)} style="--background-color: {$store.users[$store.userId].primaryColor}" class:selected={inSelection(selection, index)}>{#if char == " "}&nbsp;{:else}{char}{/if}</span>{/if}{/each}{#if showCursor && text.length == position}<span class="cursor local" style="--background-color: turquoise; --text-color: black;"><span class="name">{userName}</span></span>{/if}
   {/key}
 </div>
 
@@ -191,7 +199,7 @@
   }
 
   .selected {
-     background: #acf3ec;
+    background: var(--background-color);
   }
 
   .editor:focus .cursor {

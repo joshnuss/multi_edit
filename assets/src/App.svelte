@@ -13,17 +13,15 @@
     },
     cursors: {
       josh: { title: 0 },
-      josh2: { title: 4 },
-      josh3: { description: 5 }
+      susan: { title: 4 },
+      tom: { description: 5 }
     },
     users: {
-      josh: {},
-      josh2: {name: "Josh #2", textColor: "black", primaryColor: "plum"},
-      josh3: {name: "Josh #3", textColor: "white", primaryColor: "red"}
+      josh: {name: "Josh", textColor: "black", primaryColor: "turquoise"},
+      susan: {name: "Susan", textColor: "black", primaryColor: "plum"},
+      tom: {name: "Tom", textColor: "white", primaryColor: "red"}
     },
-    selections: {
-      josh: {}
-    }
+    selections: {}
   })
 
   export let title = $store.fields.title
