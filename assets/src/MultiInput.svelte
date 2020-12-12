@@ -1,5 +1,4 @@
 <script>
-  export let text = ""
   export let multiline = true
   export let store
   export let name
@@ -9,6 +8,7 @@
 
   let showCursor = false
 
+  $: text = $store.fields[name]
   $: position = $store.cursors[id][name]
   $: selection = $store.selections[id] && $store.selections[id].field == name ? $store.selections[id] : null
 
@@ -16,77 +16,58 @@
     showCursor = true
 
     if (typeof(position) == "undefined")
-      setPosition(text.length)
+      store.setPosition(name, text.length)
   }
 
   function handleKeydown(e) {
     switch (e.key) {
       case "Backspace":
-        if (selection) {
-          text = text.slice(0, selection.start) + text.substring(selection.end)
-          setPosition(selection.start)
-          setSelection(null)
-        } else if (position > 0) {
-          text = text.slice(0, position-1) + text.substring(position)
-          setPosition(position-1 > text.length ? text.length : position-1)
-        }
-
+        store.backspace(name)
         e.preventDefault()
         break;
+
       case "Enter":
         if (multiline) {
-          text += "\n"
-          setPosition(text.length)
+          store.insert(name, "\n")
           e.preventDefault()
         }
-
         break;
+
       case 'Delete':
-        if (selection) {
-          text = text.slice(0, selection.start) + text.substring(selection.end)
-          setPosition(selection.start)
-          setSelection(null)
-        }  if (position < text.length) {
-          text = text.slice(0, position) + text.substring(position+1)
-        }
+        store.delete(name)
         e.preventDefault()
         break
+
       case 'ArrowLeft':
         if (e.shiftKey) {
-          select(-1)
+          store.selectLeft(name)
         } else {
-          setSelection(null)
-        }
-
-        if (position > 0) {
-          setPosition(position-1)
+          store.moveLeft(name)
         }
 
         e.preventDefault()
         break;
+
       case 'ArrowRight':
         if (e.shiftKey) {
-          select(+1)
+          store.selectRight(name)
         } else {
-          setSelection(null)
-        }
-
-        if (position < text.length) {
-          setPosition(position+1)
+          store.moveRight(name)
         }
 
         e.preventDefault()
         break;
+
       case 'Home':
-        setPosition(0)
-        setSelection(null)
+        store.moveToStart(name)
         e.preventDefault()
         break;
+
       case 'End':
-        setPosition(text.length)
-        setSelection(null)
+        store.moveToEnd(name)
         e.preventDefault()
         break;
+
       case "ContextMenu":
       case "Shift":
       case "Insert":
@@ -98,49 +79,10 @@
       default:
         if (e.ctrlKey) return
 
-        if (selection) {
-          text = text.slice(0, selection.start) + text.substring(selection.end)
-          setPosition(selection.start)
-          setSelection(null)
-        }
-
-        text = text.slice(0, position) + e.key + text.substring(position)
-        setPosition(position + 1)
-
+        store.insert(name, e.key)
         e.preventDefault()
         break;
     }
-  }
-
-  function select(n) {
-    if (n < 0) {
-      if (!selection)
-        setSelection({start: position-1, end: position-1})
-      else if (position == selection.start) {
-        setSelection({...selection, start: position + n})
-      } else if (position-1 == selection.end) {
-        setSelection({...selection, end: position + n - 1})
-      }
-    } else if (n > 0) {
-      if (!selection)
-        setSelection({start: position, end: position})
-      else if (position-1 == selection.end) {
-        setSelection({...selection, end: position + n - 1})
-      } else if (position == selection.start) {
-        setSelection({...selection, start: position + n})
-      }
-    }
-  }
-
-  function setSelection(change) {
-    if (change == null)
-      $store.selections[id] = null
-    else
-      $store.selections[id] = {field: name, ...change}
-  }
-
-  function setPosition(pos) {
-    $store.cursors[id][name] = pos
   }
 
   function inSelection(selection, index) {
@@ -149,8 +91,9 @@
 
   function handleCharClicked(e, index) {
     e.preventDefault()
-    setPosition(index)
-    setSelection(null)
+
+    store.setPosition(name, index)
+    store.setSelection(name, null)
   }
 </script>
 
