@@ -118,14 +118,14 @@
         setSelection({start: position-1, end: position-1})
       else if (position == selection.start) {
         setSelection({...selection, start: position + n})
-      } else if (position == selection.end) {
-        setSelection({...selection, end: position + n})
+      } else if (position-1 == selection.end) {
+        setSelection({...selection, end: position + n - 1})
       }
     } else if (n > 0) {
       if (!selection)
         setSelection({start: position, end: position})
-      else if (position == selection.end+1) {
-        setSelection({...selection, end: position + n})
+      else if (position-1 == selection.end) {
+        setSelection({...selection, end: position + n - 1})
       } else if (position == selection.start) {
         setSelection({...selection, start: position + n})
       }
