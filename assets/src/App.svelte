@@ -61,6 +61,13 @@
     place-items: center;
     background: white;
   }
+  pre, div {
+    flex: 1
+  }
+  pre {
+    background: #ddd;
+    padding: 2rem;
+  }
   div {
     margin: auto 10vw;
     display: flex;
