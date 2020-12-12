@@ -1,70 +1,52 @@
 <!-- @hmr:keep-all -->
 <script>
-  import {onMount} from 'svelte';
-  let count = 0;
-  onMount(() => {
-    const interval = setInterval(() => count++, 1000);
-    return () => {
-      clearInterval(interval);
-    };
-  });
+  import MultiInput from './MultiInput.svelte'
+
+  export let title = "Dank Hoodie"
+  export let description = "It's extremely dank"
+  export let price = "$75"
 </script>
+
+<div>
+  <h1>Edit product</h1>
+  <label>
+    <span>Title</span>
+    <MultiInput bind:text={title} multiline={false}/>
+  </label>
+
+  <label>
+    <span>Description</span>
+    <MultiInput bind:text={description} multiline={true} lines=3/>
+  </label>
+
+  <label>
+    <span>Price</span>
+    <MultiInput bind:text={price} multiline={false}/>
+  </label>
+</div>
 
 <style>
   :global(body) {
-    margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: sans;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    place-items: center;
+    background: white;
   }
-  .App {
-    text-align: center;
-  }
-  .App code {
-    background: #0002;
-    padding: 4px 8px;
-    border-radius: 4px;
-  }
-  .App p {
-    margin: 0.4rem;
-  }
-
-  .App-header {
-    background-color: #f9f6f6;
-    color: #333;
-    min-height: 100vh;
+  div {
+    margin: auto 10vw;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
+    width: 100%;
   }
-  .App-link {
-    color: #ff3e00;
+  label {
+    margin-top: 20px;
   }
-  .App-logo {
-    height: 36vmin;
-    pointer-events: none;
-    margin-bottom: 3rem;
-    animation: App-logo-pulse infinite 1.6s ease-in-out alternate;
-  }
-  @keyframes App-logo-pulse {
-    from {
-      transform: scale(1);
-    }
-    to {
-      transform: scale(1.06);
-    }
+  label span {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-bottom: 5px;
   }
 </style>
-
-<div class="App">
-  <header class="App-header">
-    <img src="/logo.svg" class="App-logo" alt="logo" />
-    <p>Edit <code>src/App.svelte</code> and save to reload.</p>
-    <p>Page has been open for <code>{count}</code> seconds.</p>
-    <p>
-      <a class="App-link" href="https://svelte.dev" target="_blank" rel="noopener noreferrer">
-        Check out Svelte
-      </a>
-    </p>
-  </header>
-</div>
