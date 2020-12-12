@@ -11,7 +11,14 @@ config :multi_edit, MultiEditWeb.Endpoint,
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
-  watchers: []
+  watchers: [
+    {Path.expand("../assets/wrapper.sh", __DIR__),
+     [
+       Path.expand("../assets/node_modules/.bin/snowpack", __DIR__),
+       "dev",
+       cd: Path.expand("../assets", __DIR__)
+     ]}
+  ]
 
 # ## SSL Support
 #

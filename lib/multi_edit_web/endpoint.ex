@@ -16,6 +16,13 @@ defmodule MultiEditWeb.Endpoint do
 
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
 
+  if Mix.env() in [:dev, :test] do
+    plug Plug.Static,
+      from: "assets/public",
+      at: "/",
+      gzip: false
+  end
+
   # Serve at "/" the static files from "priv/static" directory.
   #
   # You should set gzip to true if you are running phx.digest
@@ -24,7 +31,7 @@ defmodule MultiEditWeb.Endpoint do
     at: "/",
     from: :multi_edit,
     gzip: false,
-    only: ~w(css fonts images js favicon.ico robots.txt)
+    only: ~w(css fonts images js favicon.ico robots.txt _dist_ web_modules __snowpack__)
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.

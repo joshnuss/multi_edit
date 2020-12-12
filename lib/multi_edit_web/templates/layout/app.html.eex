@@ -5,20 +5,22 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>MultiEdit · Phoenix Framework</title>
+    <!--
     <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
     <script defer type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
+    -->
+
+    <%= if Mix.env() in [:dev, :test] do %>
+      <script type="text/javascript">window.HMR_WEBSOCKET_URL="ws://localhost:4001"</script>
+      <script type="module" src="http://localhost:4001/__snowpack__/hmr-error-overlay.js"></script>
+      <script type="module" src="http://localhost:4001/_dist_/index.js"></script>
+    <% else %>
+      <script type="module" src="/_dist_/index.js"></script>
+    <% end %>
   </head>
   <body>
     <header>
       <section class="container">
-        <nav role="navigation">
-          <ul>
-            <li><a href="https://hexdocs.pm/phoenix/overview.html">Get Started</a></li>
-            <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
-              <li><%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home) %></li>
-            <% end %>
-          </ul>
-        </nav>
         <a href="https://phoenixframework.org/" class="phx-logo">
           <img src="<%= Routes.static_path(@conn, "/images/phoenix.png") %>" alt="Phoenix Framework Logo"/>
         </a>
