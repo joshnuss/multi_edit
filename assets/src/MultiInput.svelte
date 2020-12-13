@@ -7,10 +7,42 @@
   export let lines = 1
 
   let showCursor = false
+  let chars = []
+  let charMap = {}
+  let endCursors = []
 
   $: text = $store.fields[name]
   $: position = $store.cursors[id][name]
   $: selection = $store.selections[id] && $store.selections[id].field == name ? $store.selections[id] : null
+
+  $: cursorMap = Object.entries($store.cursors).map(([id, cursors]) => ([id, cursors[name]])).filter(([id, cursor]) => cursor != null)
+  $: {
+    charMap = {}
+    endCursors = []
+    chars = text.split('').map(value => ({cursors: [], selections: [], value}))
+    chars.forEach((char, index) => charMap[index] = char)
+    cursorMap.forEach(([userId, cursor]) => {
+
+      if (typeof(charMap[cursor]) == "undefined") {
+        endCursors = [...endCursors, userId]
+      }
+      else {
+        const cursors = charMap[cursor].cursors
+        charMap[cursor].cursors = [...cursors, userId]
+      }
+    })
+
+    Object.entries($store.selections).forEach(([userId, selection]) => {
+      if (!(selection && selection.field == name)) return
+
+      for (let i=selection.start; i<=selection.end; i++) {
+        if (typeof charMap[i] == "undefined") continue
+
+        const selections = charMap[i].selections
+        charMap[i].selections = [...selections, userId]
+      }
+    })
+  }
 
   function handleFocus() {
     showCursor = true
@@ -68,6 +100,8 @@
         e.preventDefault()
         break;
 
+      case "Pause":
+      case "ScrollLock":
       case "ContextMenu":
       case "Shift":
       case "Insert":
@@ -99,7 +133,7 @@
 
 <div class="editor" tabindex=0 on:keydown={handleKeydown} on:focus={handleFocus} on:focusout={() => showCursor = false} style="--lines: {lines}">
   {#key [...Object.values($store.cursors), ...Object.values($store.selections)]}
-  {#each text.split("") as char, index}{#if showCursor && index == position}<span class="cursor local" style="--background-color: turquoise; text-color: black"><span class="name">{userName}</span></span>{/if}{#each Object.entries($store.cursors) as [userId, cursor]}{#if cursor[name] == index && userId !== $store.userId}<span class="cursor" style="--background-color: {$store.users[userId].primaryColor}; --text-color: {$store.users[userId].textColor}; --index: {index}px"><span class="name">{$store.users[userId].name}</span></span>{/if}{/each}{#if char == "\n"}<br/>{:else}<span class="char" on:click={e => handleCharClicked(e, index)} style="--background-color: {$store.users[$store.userId].primaryColor}" class:selected={inSelection(selection, index)}>{#if char == " "}&nbsp;{:else}{char}{/if}</span>{/if}{/each}{#if showCursor && text.length == position}<span class="cursor local" style="--background-color: turquoise; --text-color: black;"><span class="name">{userName}</span></span>{/if}
+  {#each chars as char, index}{#if showCursor && index == position}<span class="cursor local" style="--background-color: {$store.users[$store.userId].primaryColor}; text-color: {$store.users[$store.userId].primaryColor};"><span class="name">{userName}</span></span>{/if}{#each char.cursors as userId}{#if userId !== $store.userId}<span class="cursor" style="--background-color: {$store.users[userId].primaryColor}; --text-color: {$store.users[userId].textColor}; --index: {index}px"><span class="name">{$store.users[userId].name}</span></span>{/if}{/each}{#if char.value == "\n"}<br/>{:else}<span class="char" on:click={e => handleCharClicked(e, index)} style="--background-color: {$store.users[$store.userId].primaryColor}" class:selected={char.selections.includes($store.userId)}>{#if char.value == " "}&nbsp;{:else}{char.value}{/if}</span>{/if}{/each}{#each endCursors as userId}<span class="cursor" class:local={userId == $store.userId} style="--background-color: {$store.users[userId].primaryColor}; --text-color: {$store.users[userId].textColor};"><span class="name">{userId == $store.userId ? userName : $store.users[userId].name}</span></span>{/each}
   {/key}
 </div>
 
