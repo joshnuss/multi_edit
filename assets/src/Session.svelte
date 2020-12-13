@@ -1,33 +1,42 @@
 <!-- @hmr:keep-all -->
 <script>
+  import { router } from 'tinro'
   import createInputStore from './inputStore'
   import MultiInput from './MultiInput.svelte'
 
   export let user
 
-  const store = createInputStore(user)
+  let store
 
-  $: id = $store.userId
+  if (!user.name) {
+    router.goto('/')
+  } else {
+    store = createInputStore(user)
+  }
+
+  $: id = $store?.userId
 </script>
 
-<pre>{JSON.stringify($store, null, 2)}</pre>
-<div>
-  <h1>Edit product</h1>
-  <label>
-    <span>Title</span>
-    <MultiInput name="title" multiline={false} {id} {store}/>
-  </label>
+{#if user.name}
+  <pre>{JSON.stringify($store, null, 2)}</pre>
+  <div>
+    <h1>Edit product</h1>
+    <label>
+      <span>Title</span>
+      <MultiInput name="title" multiline={false} {id} {store}/>
+    </label>
 
-  <label>
-    <span>Description</span>
-    <MultiInput name="description" multiline={true} lines=3 {id} {store}/>
-  </label>
+    <label>
+      <span>Description</span>
+      <MultiInput name="description" multiline={true} lines=3 {id} {store}/>
+    </label>
 
-  <label>
-    <span>Price</span>
-    <MultiInput name="price" multiline={false} {id} {store}/>
-  </label>
-</div>
+    <label>
+      <span>Price</span>
+      <MultiInput name="price" multiline={false} {id} {store}/>
+    </label>
+  </div>
+{/if}
 
 <style>
   :global(body) {

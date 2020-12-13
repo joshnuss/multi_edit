@@ -1,7 +1,7 @@
 <!-- @hmr:keep-all -->
 <script>
   import { router, Route } from 'tinro'
-  import SignupForm from './SignupForm.svelte'
+  import LoginForm from './LoginForm.svelte'
   import Session from './Session.svelte'
 
   router.useHashNavigation()
@@ -15,7 +15,7 @@
 </script>
 
 <Route path="/">
-  <SignupForm on:login={handleLogin}/>
+  <LoginForm on:login={handleLogin}/>
 </Route>
 
 <Route path="/session">
