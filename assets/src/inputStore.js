@@ -178,6 +178,7 @@ export default function createInputStore() {
 
   store.select = (field, n) => {
     const position = store.getPosition(field)
+    const text = store.getValue(field)
     let selection = store.getSelection(field)
 
     if (n < 0) {
@@ -197,6 +198,12 @@ export default function createInputStore() {
         selection = {...selection, start: position + n}
       }
     }
+
+    if (selection.start < 0)
+      selection.start = 0
+    if (selection.end > text.length)
+      selection.start = text.length
+
 
     store.setSelection(field, selection)
   }
