@@ -42,8 +42,7 @@
   form {
     background: #eee;
     border-radius: 0.3rem;
-    margin-top: 40px;
-    border: solid 3px #ccc;
+    margin-top: 10px;
     padding: 2rem 5rem 4rem;
     display: flex;
     flex-direction: column;
