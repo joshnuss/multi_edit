@@ -5,6 +5,7 @@
     "test": "web-test-runner \"src/**/*.test.js\""
   },
   "dependencies": {
+    "phoenix": "file:../deps/phoenix",
     "svelte": "^3.24.0"
   },
   "devDependencies": {
