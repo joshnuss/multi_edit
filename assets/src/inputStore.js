@@ -1,4 +1,7 @@
 import { writable } from 'svelte/store'
+import Phoenix from 'phoenix'
+
+const socket = new Phoenix.Socket("/socket")
 
 export default function createInputStore() {
   let data
@@ -21,6 +24,15 @@ export default function createInputStore() {
     },
     selections: {}
   })
+
+  socket.connect()
+  let id = prompt("name")
+  let channel = socket.channel("session:lobby", {id, name, textColor: "black", primaryColor: "turquoise"})
+  channel.join()
+    .receive("ok", resp => { console.log("Joined successfully", resp) })
+    .receive("error", resp => { console.error("Unable to join", resp) })
+
+  channel.on("update", data => store.set(data))
 
   store.subscribe(update => { data = update })
 
@@ -60,12 +72,22 @@ export default function createInputStore() {
   }
 
   store.setPosition = (field, pos) => {
+    const value = store.getValue(field)
     const userId = data.userId
 
-    store.update($store => {
-      $store.cursors[userId][field] = pos
-      return $store
-    })
+    if (typeof(value) == "undefined") {
+      store.setValue(field, "")
+
+      store.update($store => {
+        $store.cursors = {[userId]: {[field]: pos}}
+        return $store
+      })
+    } else {
+      store.update($store => {
+        $store.cursors[userId][field] = pos
+        return $store
+      })
+    }
   }
 
   store.getValue = (name) => {

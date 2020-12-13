@@ -11,8 +11,8 @@
   let charMap = {}
   let endCursors = []
 
-  $: text = $store.fields[name]
-  $: position = $store.cursors[id][name]
+  $: text = $store.fields[name] || ""
+  $: position = $store.cursors[id] ? $store.cursors[id][name] : undefined
 
   $: cursorMap = Object.entries($store.cursors).map(([id, cursors]) => ([id, cursors[name]])).filter(([id, cursor]) => cursor != null)
   $: {
