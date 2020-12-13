@@ -15,6 +15,7 @@
     "@testing-library/svelte": "^3.0.0",
     "@web/test-runner": "^0.10.0",
     "chai": "^4.2.0",
-    "snowpack": "^2.18.2"
+    "snowpack": "^2.18.2",
+    "tinro": "^0.4.5"
   }
 }
