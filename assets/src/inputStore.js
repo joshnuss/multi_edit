@@ -12,7 +12,7 @@ export default function createInputStore() {
     cursors: {
       josh: { title: 0 },
       susan: { title: 4 },
-      tom: { description: 5 }
+      tom: { description: 5, price: 1 }
     },
     users: {
       josh: {name: "Josh", textColor: "black", primaryColor: "turquoise"},

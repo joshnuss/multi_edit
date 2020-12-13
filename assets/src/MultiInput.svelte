@@ -13,7 +13,6 @@
 
   $: text = $store.fields[name]
   $: position = $store.cursors[id][name]
-  $: selection = $store.selections[id] && $store.selections[id].field == name ? $store.selections[id] : null
 
   $: cursorMap = Object.entries($store.cursors).map(([id, cursors]) => ([id, cursors[name]])).filter(([id, cursor]) => cursor != null)
   $: {
@@ -119,10 +118,6 @@
     }
   }
 
-  function inSelection(selection, index) {
-    return selection && index >= selection.start && index <= selection.end
-  }
-
   function handleCharClicked(e, index) {
     e.preventDefault()
 
@@ -133,7 +128,38 @@
 
 <div class="editor" tabindex=0 on:keydown={handleKeydown} on:focus={handleFocus} on:focusout={() => showCursor = false} style="--lines: {lines}">
   {#key [...Object.values($store.cursors), ...Object.values($store.selections)]}
-  {#each chars as char, index}{#if showCursor && index == position}<span class="cursor local" style="--background-color: {$store.users[$store.userId].primaryColor}; text-color: {$store.users[$store.userId].primaryColor};"><span class="name">{userName}</span></span>{/if}{#each char.cursors as userId}{#if userId !== $store.userId}<span class="cursor" style="--background-color: {$store.users[userId].primaryColor}; --text-color: {$store.users[userId].textColor}; --index: {index}px"><span class="name">{$store.users[userId].name}</span></span>{/if}{/each}{#if char.value == "\n"}<br/>{:else}<span class="char" on:click={e => handleCharClicked(e, index)} style="--background-color: {$store.users[$store.userId].primaryColor}" class:selected={char.selections.includes($store.userId)}>{#if char.value == " "}&nbsp;{:else}{char.value}{/if}</span>{/if}{/each}{#each endCursors as userId}<span class="cursor" class:local={userId == $store.userId} style="--background-color: {$store.users[userId].primaryColor}; --text-color: {$store.users[userId].textColor};"><span class="name">{userId == $store.userId ? userName : $store.users[userId].name}</span></span>{/each}
+  {#each chars as char, index}
+    {#if showCursor && index == position}
+      <span class="cursor local" style="--background-color: {$store.users[$store.userId].primaryColor}; text-color: {$store.users[$store.userId].primaryColor};">
+        <span class="name">{userName}</span>
+      </span>
+    {/if}
+    {#each char.cursors as userId}
+      {#if userId !== $store.userId}
+        <span class="cursor" style="--background-color: {$store.users[userId].primaryColor}; --text-color: {$store.users[userId].textColor}; --index: {index}px">
+          <span class="name">{$store.users[userId].name}</span>
+        </span>
+      {/if}
+    {/each}
+
+    {#if char.value == "\n"}
+      <br/>
+    {:else}
+      <span class="char" on:click={e => handleCharClicked(e, index)}>
+        <span class:selected={char.selections.length > 0} style="--background-color: {$store.users[char.selections.includes($store.userId) || char.selections.length == 0 ? $store.userId : char.selections[char.selections.length-1]].primaryColor}">
+          {#if char.value == " "}&nbsp;{:else}{char.value}{/if}
+        </span>
+      </span>
+    {/if}
+
+  {/each}
+
+  {#each endCursors as userId}
+    <span class="cursor" class:local={userId == $store.userId} style="--background-color: {$store.users[userId].primaryColor}; --text-color: {$store.users[userId].textColor};">
+      <span class="name">{userId == $store.userId ? userName : $store.users[userId].name}</span>
+    </span>
+  {/each}
+
   {/key}
 </div>
 
@@ -143,6 +169,11 @@
     min-height: calc((1rem + 2px) * var(--lines));
     border-radius: 1px;
     padding: 5px 6px;
+    font-size: 0;
+  }
+
+  .editor span {
+    font-size: 1rem;
   }
 
   .editor:focus {
