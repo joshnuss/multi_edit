@@ -89,6 +89,26 @@
         e.preventDefault()
         break;
 
+      case 'ArrowUp':
+        if (e.shiftKey) {
+          store.selectUp(name)
+        } else {
+          store.moveUp(name)
+        }
+
+        e.preventDefault()
+        break;
+
+      case 'ArrowDown':
+        if (e.shiftKey) {
+          store.selectDown(name)
+        } else {
+          store.moveDown(name)
+        }
+
+        e.preventDefault()
+        break;
+
       case 'Home':
         store.moveToStart(name)
         e.preventDefault()
@@ -99,18 +119,24 @@
         e.preventDefault()
         break;
 
+      case "Control":
       case "Pause":
       case "ScrollLock":
       case "ContextMenu":
       case "Shift":
       case "Insert":
       case "Alt":
-      case "Control":
       case "Escape":
       case "Tab":
         break
       default:
-        if (e.ctrlKey) return
+        if (e.ctrlKey) {
+          if (e.key == "a") {
+            store.selectAll(name)
+            e.preventDefault()
+          }
+          return
+        }
 
         store.insert(name, e.key)
         e.preventDefault()

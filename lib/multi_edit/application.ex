@@ -12,9 +12,10 @@ defmodule MultiEdit.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: MultiEdit.PubSub},
       # Start the Endpoint (http/https)
-      MultiEditWeb.Endpoint
+      MultiEditWeb.Endpoint,
       # Start a worker by calling: MultiEdit.Worker.start_link(arg)
       # {MultiEdit.Worker, arg}
+      MultiEdit.Session
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

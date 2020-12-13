@@ -5,7 +5,7 @@
 
   const store = createInputStore()
 
-  let id = "josh"
+  $: id = $store.userId
 </script>
 
 <pre>{JSON.stringify($store, null, 2)}</pre>
