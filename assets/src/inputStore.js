@@ -3,7 +3,7 @@ import Phoenix from 'phoenix'
 
 const socket = new Phoenix.Socket("/socket")
 
-export default function createInputStore() {
+export default function createInputStore(user) {
   let data
   let store = writable({
     fields: {},
@@ -13,8 +13,8 @@ export default function createInputStore() {
   })
 
   socket.connect()
-  let id = prompt("name")
-  let channel = socket.channel("session:lobby", {id, name: id, textColor: "black", primaryColor: "turquoise"})
+  let id = user.name
+  let channel = socket.channel("session:lobby", {id, name: user.name, textColor: user.color.text, primaryColor: user.color.primary})
   channel.join()
     .receive("ok", resp => { console.log("Joined successfully", resp) })
     .receive("error", resp => { console.error("Unable to join", resp) })
