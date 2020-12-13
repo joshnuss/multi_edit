@@ -202,8 +202,7 @@ export default function createInputStore() {
     if (selection.start < 0)
       selection.start = 0
     if (selection.end > text.length)
-      selection.start = text.length
-
+      selection.end = text.length
 
     store.setSelection(field, selection)
   }
